@@ -483,7 +483,7 @@ const addAdvancedDialog = (url, referer = null) => {
 
     chrome.windows.create({
         url: 'view/add_torrent.html?' + params.toString(),
-        type: 'popup',
+        type: 'panel',
         top: top,
         left: left,
         height: height,
