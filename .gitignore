@@ -2,3 +2,5 @@ node_modules/
 web-ext-artifacts/
 .idea/
 *.log
+src.pem
+src.crx
