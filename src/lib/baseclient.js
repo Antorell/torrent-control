@@ -1,4 +1,12 @@
-import {getHostFilter} from '../util.js';
+/**
+ * @param hostname {string}
+ * @returns {string}
+ */
+export const getHostFilter = (hostname) => {
+    const url = new URL(hostname);
+
+    return `${url.protocol}//${url.hostname}/*`;
+}
 
 export default class BaseClient {
 
