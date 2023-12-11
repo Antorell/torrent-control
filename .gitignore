@@ -4,3 +4,4 @@ web-ext-artifacts/
 *.log
 src.pem
 src.crx
+extension-MV2.pem
