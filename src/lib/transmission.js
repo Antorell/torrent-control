@@ -18,7 +18,6 @@ export default class TransmissionApi extends BaseClient {
         return new Promise((resolve, reject) => {
             fetch(hostname + 'transmission/rpc', {
                 method: 'POST',
-                credentials: 'include',
                 headers: new Headers({
                     'Content-Type': 'application/json'
                 }),
@@ -32,7 +31,7 @@ export default class TransmissionApi extends BaseClient {
                 else if (response.status === 401)
                     throw new Error(chrome.i18n.getMessage('loginError'));
                 else if (response.status === 409 && response.headers.has('X-Transmission-Session-Id'))
-                    return this.logIn().then(() => resolve());
+                    return { result: 'success' };
                 else
                     throw new Error(chrome.i18n.getMessage('apiError', response.status.toString() + ': ' + response.statusText));
             })
@@ -74,12 +73,17 @@ export default class TransmissionApi extends BaseClient {
                 if (options.label)
                     request.arguments.labels = [options.label];
 
+                const headers = new Headers({
+                    'Content-Type': 'application/json'
+                });
+
+                if (this.session) {
+                    headers.append('X-Transmission-Session-Id', this.session);
+                }
+
                 return fetch(hostname + 'transmission/rpc', {
                     method: 'POST',
-                    credentials: 'include',
-                    headers: new Headers({
-                        'Content-Type': 'application/json'
-                    }),
+                    headers: headers,
                     body: JSON.stringify(request)
                 })
                 .then((response) => response.json())
@@ -112,13 +116,18 @@ export default class TransmissionApi extends BaseClient {
 
             if (options.label)
                 request.arguments.labels = [options.label];
-            
+
+            const headers = new Headers({
+                'Content-Type': 'application/json'
+            });
+
+            if (this.session) {
+                headers.append('X-Transmission-Session-Id', this.session);
+            }
+
             fetch(hostname + 'transmission/rpc', {
                 method: 'POST',
-                credentials: 'include',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                }),
+                headers: headers,
                 body: JSON.stringify(request)
             })
             .then((response) => response.json())
@@ -134,31 +143,17 @@ export default class TransmissionApi extends BaseClient {
 
     _attachListeners() {
         const {username, password} = this.settings;
-        let session = this.session;
 
-        if (username !== '' || password !== '')
+        if (username !== '' && password !== '') {
             this.addAuthRequiredListener(username, password);
+        }
 
         this.addHeadersReceivedEventListener((details) => {
             const sessionHeader = details.responseHeaders.find((header) => header.name.toLowerCase() === 'x-transmission-session-id');
 
-            if (sessionHeader)
-                session = sessionHeader.value;
-        });
-
-        this.addBeforeSendHeadersEventListener((details) => {
-            let requestHeaders = details.requestHeaders;
-
-            if (session) {
-                requestHeaders.push({
-                    name: 'X-Transmission-Session-Id',
-                    value: session
-                });
+            if (sessionHeader) {
+                this.session = sessionHeader.value;
             }
-
-            return {
-                requestHeaders: requestHeaders
-            };
         });
     }
 
