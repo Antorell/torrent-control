@@ -75,6 +75,10 @@
     "message": "Добавить торрент (Путь)",
     "description": "Context menu action"
   },
+  "addTorrentServerAction": {
+    "message": "Add torrent to server",
+    "description": "Context menu action"
+  },
   "addRssFeedAction": {
     "message": "Добавить RSS-канал",
     "description": "Context menu action"
@@ -198,6 +202,10 @@
   "downloadDirectorySelect": {
     "message": "Путь загрузки",
     "description": "Download location select"
+  },
+  "customDownloadDirectoryOption": {
+    "message": "Произвольный путь",
+    "description": "Manual download path text input label"
   },
   "defaultOption": {
     "message": "По умолчанию",
