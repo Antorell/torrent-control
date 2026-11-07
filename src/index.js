@@ -136,12 +136,9 @@ const createBrowserRequest = (url, referer) => {
     return new Promise((resolve, reject) => {
         const listener = async (details) => {
             let requestHeaders = details.requestHeaders;
-
             const currentTab = await getCurrentTab();
-
             // @crossplatform Tab includes cookieStoreId on Firefox
             const cookies = currentTab ? await getCookies(currentTab.cookieStoreId, url) : [];
-
             requestHeaders = requestHeaders.filter((header) => {
                 return ![
                     'cookie',
@@ -149,7 +146,6 @@ const createBrowserRequest = (url, referer) => {
                     'referer',
                 ].includes(header.name.toLowerCase());
             });
-
             if (cookies.length) {
                 requestHeaders.push({
                     name: 'Cookie',
@@ -157,16 +153,17 @@ const createBrowserRequest = (url, referer) => {
                 });
             }
 
-            if (referer) {
-                requestHeaders.push({
-                    name: 'Referer',
-                    value: referer
-                });
-            }
-
+            // if (referer) {
+            const chrmReferer = currentTab.url ?? null;
+            requestHeaders.push({
+                name: 'Referer',
+                value: chrmReferer
+            });
+            // } 
             return {
                 requestHeaders: requestHeaders
             };
+
         }
 
         chrome.webRequest.onBeforeSendHeaders.addListener(
@@ -442,7 +439,7 @@ const registerHandler = () => {
                 });
             }
             // return { cancel: true };
-            return { redirectUrl: "javascript:" };
+            return { redirectUrl: "javascript:void(0)" };
         }
 
         return { cancel: false };
