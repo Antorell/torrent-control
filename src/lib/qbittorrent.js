@@ -76,9 +76,9 @@ export default class qBittorrentApi extends BaseClient {
             let form = new FormData();
 
             if (apiVersion === VERSION_4_0_4) {
-                form.append('torrents', torrent, 'temp.torrent');
+                form.append('torrents', torrent, options.filename || 'temp.torrent');
             } else {
-                form.append('fileselect', torrent, 'temp.torrent');
+                form.append('fileselect', torrent, options.filename || 'temp.torrent');
 
                 if (options.paused) {
                     if (apiVersion === VERSION_4_6_7) {
@@ -112,10 +112,13 @@ export default class qBittorrentApi extends BaseClient {
                 body: form
             })
             .then((response) => {
-                if (response.ok)
+                if (response.ok) {
                     resolve();
-                else
+                } else if (response.status === 409) {
+                    throw new Error(chrome.i18n.getMessage('torrentAddError', 'Already exists'));
+                } else {
                     throw new Error(chrome.i18n.getMessage('torrentAddError'));
+                }
             })
             .catch((error) => reject(error));
         });
@@ -162,10 +165,13 @@ export default class qBittorrentApi extends BaseClient {
                 body: form
             })
             .then((response) => {
-                if (response.ok)
+                if (response.ok) {
                     resolve();
-                else
+                } else if (response.status === 409) {
+                    throw new Error(chrome.i18n.getMessage('torrentAddError', 'Already exists'));
+                } else {
                     throw new Error(chrome.i18n.getMessage('torrentAddError'));
+                }
             })
             .catch((error) => reject(error));
         });
